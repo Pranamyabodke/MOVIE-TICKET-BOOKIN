@@ -424,6 +424,10 @@ public class MovieWebServer {
                     cleanPath = "/index.html";
                 } else {
                     String msg = "404 Not Found: " + cleanPath;
+                    if ("HEAD".equalsIgnoreCase(exchange.getRequestMethod())) {
+                        exchange.sendResponseHeaders(404, -1);
+                        return;
+                    }
                     exchange.sendResponseHeaders(404, msg.length());
                     try (OutputStream os = exchange.getResponseBody()) {
                         os.write(msg.getBytes());
@@ -434,6 +438,10 @@ public class MovieWebServer {
 
             String mimeType = getMimeType(cleanPath);
             exchange.getResponseHeaders().set("Content-Type", mimeType);
+            if ("HEAD".equalsIgnoreCase(exchange.getRequestMethod())) {
+                exchange.sendResponseHeaders(200, -1);
+                return;
+            }
             exchange.sendResponseHeaders(200, content.length);
             try (OutputStream os = exchange.getResponseBody()) {
                 os.write(content);

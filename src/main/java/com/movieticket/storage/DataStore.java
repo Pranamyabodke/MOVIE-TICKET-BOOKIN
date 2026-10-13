@@ -395,17 +395,71 @@ public class DataStore {
     // ----------------------------------------------------
     // Showtime Operations
     // ----------------------------------------------------
-    public List<Showtime> getShowtimesByMovieAndDate(String movieId, String date) {
+    public synchronized List<Showtime> getShowtimesByMovieAndDate(String movieId, String date) {
+        if (date == null || date.isEmpty()) {
+            date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        }
+
         List<Showtime> list = new ArrayList<>();
         for (Showtime s : showtimes.values()) {
-            if (s.getMovieId().equals(movieId)) {
-                if (date == null || date.isEmpty() || s.getDate().equals(date)) {
-                    list.add(s);
-                }
+            if (s.getMovieId().equals(movieId) && s.getDate().equals(date)) {
+                list.add(s);
             }
         }
+
+        // If no showtimes exist for this movie and date, auto-generate them on the fly!
+        if (list.isEmpty() && movies.containsKey(movieId)) {
+            list = generateShowtimesForMovieAndDate(movieId, date);
+            save();
+        }
+
         list.sort(Comparator.comparing(Showtime::getTime));
         return list;
+    }
+
+    private List<Showtime> generateShowtimesForMovieAndDate(String movieId, String date) {
+        String[][] theaters = new String[][] {
+            {"PVR: Phoenix Marketcity", "Kurla West, Mumbai", "Audi 01 (Dolby 7.1)"},
+            {"INOX: R-City Mall", "LBS Marg, Ghatkopar", "Insignia Screen 03"},
+            {"Cinepolis: Viviana Mall", "Eastern Express Highway, Thane", "Screen 05 (IMAX 3D)"},
+            {"PVR ICON: Infinity Mall", "Link Road, Andheri West", "Gold Class Audi 02"}
+        };
+        String[] times = new String[] {"10:15 AM", "01:45 PM", "05:30 PM", "09:15 PM"};
+        List<Showtime> created = new ArrayList<>();
+
+        for (int t = 0; t < theaters.length; t++) {
+            String[] th = theaters[t];
+            for (int s = 0; s < 2; s++) {
+                String time = times[(t + s) % times.length];
+                String cleanDate = date.replace("-", "");
+                String showId = "show-" + movieId + "-" + cleanDate + "-" + t + "-" + s;
+
+                Set<String> preBooked = new LinkedHashSet<>();
+                if ((t + s) % 2 == 0) {
+                    preBooked.addAll(Arrays.asList("C4", "C5", "D5", "D6"));
+                }
+                if ((t + s) % 3 == 0) {
+                    preBooked.addAll(Arrays.asList("E6", "E7", "F7", "F8"));
+                }
+
+                Showtime st = new Showtime(
+                    showId,
+                    movieId,
+                    th[0],
+                    th[1],
+                    date,
+                    time,
+                    th[2],
+                    160,
+                    240,
+                    380,
+                    preBooked
+                );
+                showtimes.put(st.getId(), st);
+                created.add(st);
+            }
+        }
+        return created;
     }
 
     public Showtime getShowtimeById(String id) {

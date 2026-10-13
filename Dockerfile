@@ -21,3 +21,4 @@ EXPOSE 8080
 
 # Run CineShow Web Server
 CMD ["java", "-cp", "bin", "com.movieticket.Main", "8080"]
+

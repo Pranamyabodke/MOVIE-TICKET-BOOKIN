@@ -291,7 +291,8 @@ const app = {
         const today = new Date();
         const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 
-        for (let i = 0; i < 3; i++) {
+        // Generate rolling 7 days (Today, Tomorrow, and next 5 days)
+        for (let i = 0; i < 7; i++) {
             const d = new Date(today);
             d.setDate(today.getDate() + i);
 
