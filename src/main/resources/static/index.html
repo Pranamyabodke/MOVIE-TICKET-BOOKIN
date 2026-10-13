@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineShow - Movie Ticket Booking | BookMyShow Clone</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- TOP ANNOUNCEMENT BANNER -->
+    <div class="college-badge-bar">
+        <span>🎓 <strong>College Micro-Project (2nd Year)</strong>: Java Web Backend + REST API + JSON Storage</span>
+        <button id="btnProjectInfo" class="badge-link"><i class="fa-solid fa-circle-info"></i> Project Details & Viva Guide</button>
+    </div>
+
+    <!-- MAIN NAVBAR -->
+    <header class="navbar">
+        <div class="nav-container">
+            <!-- Brand Logo -->
+            <a href="#" class="brand-logo" onclick="app.showHomeView(); return false;">
+                <div class="logo-icon"><i class="fa-solid fa-film"></i></div>
+                <div class="logo-text">
+                    <span class="logo-red">Cine</span>Show
+                    <span class="logo-sub">bookmymovie</span>
+                </div>
+            </a>
+
+            <!-- Search Bar -->
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" id="searchInput" placeholder="Search for Movies, Genres, or Actors..." autocomplete="off">
+                <button id="searchClearBtn" class="search-clear-btn" style="display: none;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <!-- City Selector & Navigation -->
+            <div class="nav-actions">
+                <div class="city-selector">
+                    <i class="fa-solid fa-location-dot"></i>
+                    <select id="citySelect">
+                        <option value="Mumbai" selected>Mumbai</option>
+                        <option value="Delhi-NCR">Delhi-NCR</option>
+                        <option value="Bengaluru">Bengaluru</option>
+                        <option value="Pune">Pune</option>
+                        <option value="Hyderabad">Hyderabad</option>
+                        <option value="Chennai">Chennai</option>
+                    </select>
+                </div>
+
+                <button class="nav-link-btn" id="navHomeBtn" onclick="app.showHomeView()">
+                    <i class="fa-solid fa-house"></i> Home
+                </button>
+
+                <button class="nav-link-btn" id="navBookingsBtn" onclick="app.showBookingsView()">
+                    <i class="fa-solid fa-ticket"></i> My Bookings
+                </button>
+
+                <!-- Auth Container (Signed Out / Signed In) -->
+                <div id="authContainer">
+                    <button id="btnSignIn" class="btn-primary" onclick="app.openAuthModal('login')">
+                        <i class="fa-regular fa-user"></i> Sign In
+                    </button>
+                    <div id="userProfileDropdown" class="user-profile-menu" style="display: none;">
+                        <button class="user-pill-btn" id="userPillBtn" onclick="app.toggleUserMenu()">
+                            <div class="user-avatar" id="navUserAvatar">U</div>
+                            <span class="user-name" id="navUserName">User</span>
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </button>
+                        <div class="user-dropdown-panel" id="userDropdownPanel">
+                            <div class="user-dropdown-header">
+                                <p class="user-dropdown-name" id="dropdownUserName">User Name</p>
+                                <p class="user-dropdown-email" id="dropdownUserEmail">user@example.com</p>
+                            </div>
+                            <div class="user-dropdown-divider"></div>
+                            <a href="#" onclick="app.showBookingsView(); app.toggleUserMenu(); return false;">
+                                <i class="fa-solid fa-ticket"></i> My Bookings
+                            </a>
+                            <a href="#" onclick="app.logout(); return false;" class="logout-link">
+                                <i class="fa-solid fa-arrow-right-from-bracket"></i> Sign Out
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- SECONDARY FILTER & CATEGORY BAR -->
+    <nav class="sub-nav">
+        <div class="sub-nav-container">
+            <div class="genre-pills" id="genrePills">
+                <button class="pill active" data-genre="All">All Movies</button>
+                <button class="pill" data-genre="Action">Action</button>
+                <button class="pill" data-genre="Sci-Fi">Sci-Fi</button>
+                <button class="pill" data-genre="Comedy">Comedy</button>
+                <button class="pill" data-genre="Thriller">Thriller</button>
+                <button class="pill" data-genre="Drama">Drama</button>
+                <button class="pill" data-genre="Animation">Animation</button>
+            </div>
+            <div class="lang-filter">
+                <span>Language:</span>
+                <select id="languageSelect">
+                    <option value="All">All Languages</option>
+                    <option value="Hindi">Hindi</option>
+                    <option value="English">English</option>
+                    <option value="Telugu">Telugu</option>
+                </select>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN VIEW CONTAINER -->
+    <main id="mainContent">
+
+        <!-- ============================================== -->
+        <!-- VIEW 1: HOME PAGE (Carousel + Movies Grid)     -->
+        <!-- ============================================== -->
+        <section id="homeView" class="view-section active">
+            <!-- HERO CAROUSEL -->
+            <div class="hero-carousel" id="heroCarousel">
+                <div class="carousel-slide active" style="background-image: linear-gradient(90deg, rgba(15,16,22,0.95) 20%, rgba(15,16,22,0.6) 60%, rgba(15,16,22,0.2) 100%), url('https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=1400&fit=crop');">
+                    <div class="carousel-content">
+                        <span class="hero-tag">🔥 Trending Blockbuster</span>
+                        <h1 class="hero-title">Jawan</h1>
+                        <p class="hero-meta">
+                            <span class="rating-badge"><i class="fa-solid fa-star"></i> 8.9/10</span>
+                            <span>Hindi • UA 16+ • 2h 49m</span>
+                            <span>Action / Thriller</span>
+                        </p>
+                        <p class="hero-desc">A high-octane action thriller outlining the emotional journey of a man set to rectify wrongs in society.</p>
+                        <div class="hero-btns">
+                            <button class="btn-primary btn-large" onclick="app.selectMovie('mov-1')">
+                                <i class="fa-solid fa-ticket"></i> Book Tickets
+                            </button>
+                            <button class="btn-secondary btn-large" onclick="app.selectMovie('mov-1')">
+                                <i class="fa-solid fa-circle-info"></i> View Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MOVIES SECTION -->
+            <div class="movies-container">
+                <div class="section-header">
+                    <div>
+                        <h2 class="section-title">Recommended Movies</h2>
+                        <p class="section-sub">Experience the latest releases in top theaters near you</p>
+                    </div>
+                    <div class="view-toggle">
+                        <span id="movieCountText" class="count-pill">6 Movies Available</span>
+                    </div>
+                </div>
+
+                <!-- MOVIE GRID -->
+                <div class="movie-grid" id="movieGrid">
+                    <!-- Populated via JS -->
+                    <div class="loading-spinner">
+                        <i class="fa-solid fa-circle-notch fa-spin"></i> Loading Movies from Java Backend...
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- VIEW 2: SHOWTIMES & THEATER SELECTION          -->
+        <!-- ============================================== -->
+        <section id="showtimesView" class="view-section">
+            <div class="showtimes-wrapper">
+                <!-- Back Button -->
+                <button class="btn-back" onclick="app.showHomeView()">
+                    <i class="fa-solid fa-arrow-left"></i> Back to Movies
+                </button>
+
+                <!-- Selected Movie Banner Card -->
+                <div class="movie-banner-card" id="selectedMovieBanner">
+                    <!-- Dynamic details -->
+                </div>
+
+                <!-- Date Picker Strip -->
+                <div class="date-selector-container">
+                    <span class="date-label"><i class="fa-regular fa-calendar-days"></i> Select Date:</span>
+                    <div class="date-pills" id="datePills">
+                        <!-- Populated via JS -->
+                    </div>
+                </div>
+
+                <!-- Theaters & Showtimes List -->
+                <div class="theaters-list" id="theatersList">
+                    <!-- Populated via JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- VIEW 3: INTERACTIVE SEAT SELECTION             -->
+        <!-- ============================================== -->
+        <section id="seatsView" class="view-section">
+            <div class="seat-booking-wrapper">
+                <!-- Header with Show Info -->
+                <div class="seat-booking-header">
+                    <button class="btn-back" onclick="app.backToShowtimes()">
+                        <i class="fa-solid fa-arrow-left"></i> Back to Showtimes
+                    </button>
+                    <div class="show-summary-compact" id="seatShowSummary">
+                        <!-- Filled by JS -->
+                    </div>
+                    <div class="seat-timer" id="seatTimer">
+                        <i class="fa-regular fa-clock"></i> <span>10:00</span>
+                    </div>
+                </div>
+
+                <!-- Seat Map Area -->
+                <div class="seat-layout-card">
+                    <!-- Screen Visual -->
+                    <div class="screen-container">
+                        <div class="cinema-screen"></div>
+                        <p class="screen-label">SCREEN THIS WAY (All eyes here)</p>
+                    </div>
+
+                    <!-- Seat Legend -->
+                    <div class="seat-legend">
+                        <div class="legend-item">
+                            <div class="seat-demo available"></div>
+                            <span>Available</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="seat-demo selected"></div>
+                            <span>Selected</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="seat-demo booked"></div>
+                            <span>Sold Out</span>
+                        </div>
+                    </div>
+
+                    <!-- Seat Grid Container -->
+                    <div class="seat-grid" id="seatGrid">
+                        <!-- Populated dynamically via JS: Platinum, Gold, Silver -->
+                    </div>
+                </div>
+
+                <!-- Sticky Bottom Checkout Bar -->
+                <div class="seat-checkout-bar" id="seatCheckoutBar">
+                    <div class="selected-seats-info">
+                        <div class="seat-tags" id="selectedSeatsBadges">
+                            <span class="no-selection-msg">No seats selected yet. Click on available seats to choose.</span>
+                        </div>
+                        <div class="price-breakdown" id="priceBreakdown" style="display: none;">
+                            <span class="price-item">Base Fare: <strong id="lblBaseFare">₹0</strong></span>
+                            <span class="price-sep">+</span>
+                            <span class="price-item">GST & Convenience (18%): <strong id="lblGst">₹0</strong></span>
+                        </div>
+                    </div>
+                    <div class="checkout-action">
+                        <div class="total-amount-box">
+                            <span class="total-caption">Total Payable:</span>
+                            <span class="total-price" id="lblTotalPrice">₹0</span>
+                        </div>
+                        <button id="btnProceedToPay" class="btn-primary btn-large" disabled onclick="app.proceedToPayment()">
+                            Proceed to Payment <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- VIEW 4: MY BOOKINGS VIEW                       -->
+        <!-- ============================================== -->
+        <section id="bookingsView" class="view-section">
+            <div class="bookings-wrapper">
+                <div class="bookings-header">
+                    <div>
+                        <h2><i class="fa-solid fa-ticket-simple"></i> My Booked Tickets</h2>
+                        <p>View your upcoming shows, print boarding passes, or manage reservations</p>
+                    </div>
+                    <button class="btn-secondary" onclick="app.showHomeView()">
+                        <i class="fa-solid fa-plus"></i> Book Another Movie
+                    </button>
+                </div>
+
+                <div class="bookings-grid" id="bookingsGrid">
+                    <!-- Populated via JS -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ============================================== -->
+    <!-- MODAL 1: AUTHENTICATION (Sign In / Register)   -->
+    <!-- ============================================== -->
+    <div class="modal-overlay" id="authModal">
+        <div class="modal-container auth-modal-card">
+            <button class="modal-close" onclick="app.closeModal('authModal')"><i class="fa-solid fa-xmark"></i></button>
+            <div class="auth-tabs">
+                <button class="auth-tab-btn active" id="tabLoginBtn" onclick="app.switchAuthTab('login')">Sign In</button>
+                <button class="auth-tab-btn" id="tabRegisterBtn" onclick="app.switchAuthTab('register')">Create Account</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm" class="auth-form" onsubmit="app.handleLogin(event)">
+                <h3>Welcome Back!</h3>
+                <p class="auth-sub">Sign in to manage your tickets and bookings</p>
+
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <div class="input-with-icon">
+                        <i class="fa-regular fa-envelope"></i>
+                        <input type="email" id="loginEmail" placeholder="e.g. demo@example.com" required value="demo@example.com">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <div class="input-with-icon">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" id="loginPassword" placeholder="••••••••" required value="password123">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary btn-block">Sign In <i class="fa-solid fa-right-to-bracket"></i></button>
+
+                <div class="demo-account-hint">
+                    <p>💡 Quick Demo Credentials prefilled:</p>
+                    <code>Email: demo@example.com | Pass: password123</code>
+                </div>
+            </form>
+
+            <!-- Register Form -->
+            <form id="registerForm" class="auth-form" style="display: none;" onsubmit="app.handleRegister(event)">
+                <h3>Create an Account</h3>
+                <p class="auth-sub">Register to save your tickets and booking history</p>
+
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <div class="input-with-icon">
+                        <i class="fa-regular fa-user"></i>
+                        <input type="text" id="regName" placeholder="e.g. Amit Kumar" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <div class="input-with-icon">
+                        <i class="fa-regular fa-envelope"></i>
+                        <input type="email" id="regEmail" placeholder="e.g. amit@example.com" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Mobile Number</label>
+                    <div class="input-with-icon">
+                        <i class="fa-solid fa-phone"></i>
+                        <input type="tel" id="regPhone" placeholder="e.g. 9876543210" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <div class="input-with-icon">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" id="regPassword" placeholder="Minimum 6 characters" required minlength="6">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary btn-block">Register & Continue <i class="fa-solid fa-user-plus"></i></button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- MODAL 2: DUMMY PAYMENT GATEWAY (Razorpay/PayTM)-->
+    <!-- ============================================== -->
+    <div class="modal-overlay" id="paymentModal">
+        <div class="modal-container payment-modal-card">
+            <button class="modal-close" onclick="app.closeModal('paymentModal')"><i class="fa-solid fa-xmark"></i></button>
+            
+            <div class="payment-header">
+                <div class="gateway-brand">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span>CinePay Secure Checkout</span>
+                </div>
+                <div class="gateway-badge">
+                    <i class="fa-solid fa-lock"></i> 256-bit SSL Simulated
+                </div>
+            </div>
+
+            <div class="payment-body">
+                <!-- Left: Order Summary -->
+                <div class="order-summary-panel">
+                    <h4>Order Summary</h4>
+                    <div class="summary-movie-info" id="payMovieInfo">
+                        <!-- Populated by JS -->
+                    </div>
+                    <div class="summary-line-items">
+                        <div class="summary-row">
+                            <span>Tickets (<span id="paySeatCount">0</span>x)</span>
+                            <span id="payBaseFare">₹0.00</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Convenience Fee & GST</span>
+                            <span id="payGst">₹0.00</span>
+                        </div>
+                        <div class="summary-divider"></div>
+                        <div class="summary-row total-row">
+                            <strong>Amount Payable</strong>
+                            <strong class="highlight-total" id="payTotalAmount">₹0.00</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Payment Methods -->
+                <div class="payment-methods-panel">
+                    <div class="payment-tabs">
+                        <button class="pay-tab active" data-tab="upi" onclick="app.switchPayTab('upi')">
+                            <i class="fa-solid fa-qrcode"></i> UPI / QR
+                        </button>
+                        <button class="pay-tab" data-tab="card" onclick="app.switchPayTab('card')">
+                            <i class="fa-regular fa-credit-card"></i> Card
+                        </button>
+                        <button class="pay-tab" data-tab="netbanking" onclick="app.switchPayTab('netbanking')">
+                            <i class="fa-solid fa-building-columns"></i> Net Banking
+                        </button>
+                    </div>
+
+                    <!-- TAB 1: UPI / QR -->
+                    <div class="pay-tab-content active" id="tabContentUpi">
+                        <div class="upi-box">
+                            <div class="qr-container">
+                                <div class="mock-qr-code">
+                                    <i class="fa-solid fa-qrcode"></i>
+                                </div>
+                                <span class="qr-caption">Scan with any UPI App</span>
+                                <div class="upi-apps-icons">
+                                    <span class="upi-chip">GPay</span>
+                                    <span class="upi-chip">PhonePe</span>
+                                    <span class="upi-chip">Paytm</span>
+                                    <span class="upi-chip">BHIM</span>
+                                </div>
+                            </div>
+                            <div class="upi-or-divider"><span>OR ENTER UPI ID</span></div>
+                            <div class="form-group">
+                                <input type="text" id="upiIdInput" placeholder="username@okhdfcbank" value="student@okaxis">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 2: DEBIT / CREDIT CARD -->
+                    <div class="pay-tab-content" id="tabContentCard">
+                        <div class="card-box">
+                            <div class="form-group">
+                                <label>Card Number</label>
+                                <div class="input-with-icon">
+                                    <i class="fa-regular fa-credit-card"></i>
+                                    <input type="text" id="cardNumberInput" placeholder="4532 •••• •••• 8892" value="4532 8921 7843 8892" maxlength="19">
+                                </div>
+                            </div>
+                            <div class="card-row-split">
+                                <div class="form-group">
+                                    <label>Expiry (MM/YY)</label>
+                                    <input type="text" id="cardExpiryInput" placeholder="12/28" value="08/28" maxlength="5">
+                                </div>
+                                <div class="form-group">
+                                    <label>CVV</label>
+                                    <input type="password" id="cardCvvInput" placeholder="•••" value="789" maxlength="3">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Cardholder Name</label>
+                                <input type="text" id="cardNameInput" placeholder="Rahul Sharma" value="Rahul Sharma">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 3: NET BANKING -->
+                    <div class="pay-tab-content" id="tabContentNetbanking">
+                        <div class="netbanking-box">
+                            <label>Popular Banks</label>
+                            <div class="bank-grid">
+                                <button type="button" class="bank-btn active" onclick="app.selectBank(this, 'HDFC Bank')"><i class="fa-solid fa-building-columns"></i> HDFC</button>
+                                <button type="button" class="bank-btn" onclick="app.selectBank(this, 'SBI')"><i class="fa-solid fa-building-columns"></i> SBI</button>
+                                <button type="button" class="bank-btn" onclick="app.selectBank(this, 'ICICI Bank')"><i class="fa-solid fa-building-columns"></i> ICICI</button>
+                                <button type="button" class="bank-btn" onclick="app.selectBank(this, 'Axis Bank')"><i class="fa-solid fa-building-columns"></i> Axis</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pay CTA Button -->
+                    <button id="btnConfirmPayment" class="btn-primary btn-block btn-pay-now" onclick="app.processPayment()">
+                        <i class="fa-solid fa-lock"></i> Pay <span id="btnPayAmount">₹0</span>
+                    </button>
+
+                    <p class="dummy-disclaimer">ℹ️ This is a simulated college project payment gateway. No real money is charged.</p>
+                </div>
+            </div>
+
+            <!-- Payment Processing Overlay -->
+            <div class="payment-processing-overlay" id="paymentProcessingOverlay" style="display: none;">
+                <div class="processing-spinner">
+                    <i class="fa-solid fa-circle-notch fa-spin"></i>
+                </div>
+                <h3 id="processingStatusTitle">Securing Payment...</h3>
+                <p id="processingStatusSub">Connecting to bank server. Please do not refresh.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- MODAL 3: TICKET PASS CONFIRMATION / PRINT      -->
+    <!-- ============================================== -->
+    <div class="modal-overlay" id="ticketModal">
+        <div class="modal-container ticket-modal-card">
+            <button class="modal-close" onclick="app.closeModal('ticketModal')"><i class="fa-solid fa-xmark"></i></button>
+
+            <div class="ticket-wrapper" id="printableTicket">
+                <!-- Ticket Header -->
+                <div class="ticket-header">
+                    <div class="ticket-brand">
+                        <i class="fa-solid fa-film"></i> CineShow Admission Pass
+                    </div>
+                    <div class="ticket-badge" id="tktStatusBadge">CONFIRMED</div>
+                </div>
+
+                <!-- Ticket Content -->
+                <div class="ticket-content">
+                    <div class="ticket-poster-col">
+                        <img id="tktPoster" src="" alt="Movie Poster">
+                    </div>
+                    <div class="ticket-info-col">
+                        <h2 class="tkt-title" id="tktTitle">Movie Title</h2>
+                        <p class="tkt-sub" id="tktLanguage">Hindi • 2D • UA 16+</p>
+
+                        <div class="tkt-details-grid">
+                            <div class="tkt-cell">
+                                <span class="tkt-label">CINEMA</span>
+                                <strong id="tktTheater">PVR: Phoenix Marketcity</strong>
+                            </div>
+                            <div class="tkt-cell">
+                                <span class="tkt-label">AUDITORIUM</span>
+                                <strong id="tktScreen">Audi 01 (Dolby 7.1)</strong>
+                            </div>
+                            <div class="tkt-cell">
+                                <span class="tkt-label">DATE</span>
+                                <strong id="tktDate">Wed, 14 Oct 2026</strong>
+                            </div>
+                            <div class="tkt-cell">
+                                <span class="tkt-label">TIME</span>
+                                <strong id="tktTime">05:30 PM</strong>
+                            </div>
+                            <div class="tkt-cell full-width">
+                                <span class="tkt-label">SEATS (<span id="tktCategory">Prime</span>)</span>
+                                <span class="tkt-seats-badge" id="tktSeats">C4, C5</span>
+                            </div>
+                        </div>
+
+                        <div class="tkt-meta-row">
+                            <div>
+                                <span class="tkt-label">BOOKING ID</span>
+                                <code id="tktBookingId">BMS-2026-98124</code>
+                            </div>
+                            <div>
+                                <span class="tkt-label">AMOUNT PAID</span>
+                                <strong class="tkt-paid" id="tktAmount">₹523.20</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ticket Barcode / QR Section -->
+                <div class="ticket-footer">
+                    <div class="ticket-barcode">
+                        <div class="barcode-lines"></div>
+                        <span class="barcode-number" id="tktBarcode">98471203948123</span>
+                    </div>
+                    <div class="ticket-qr">
+                        <i class="fa-solid fa-qrcode"></i>
+                        <span>Scan at Entry</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ticket Actions -->
+            <div class="ticket-actions">
+                <button class="btn-primary" onclick="window.print()">
+                    <i class="fa-solid fa-print"></i> Print / Save Ticket
+                </button>
+                <button class="btn-secondary" onclick="app.showBookingsView(); app.closeModal('ticketModal');">
+                    <i class="fa-solid fa-ticket"></i> View All Bookings
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- MODAL 4: PROJECT INFO & VIVA GUIDE             -->
+    <!-- ============================================== -->
+    <div class="modal-overlay" id="projectModal">
+        <div class="modal-container info-modal-card">
+            <button class="modal-close" onclick="app.closeModal('projectModal')"><i class="fa-solid fa-xmark"></i></button>
+            <div class="info-header">
+                <i class="fa-solid fa-graduation-cap"></i>
+                <div>
+                    <h3>Movie Ticket Booking System - Project Guide</h3>
+                    <p>Second Year Diploma / Degree Computer Engineering Micro-Project</p>
+                </div>
+            </div>
+            <div class="info-body">
+                <div class="info-section">
+                    <h4><i class="fa-solid fa-layer-group"></i> Architecture & Technology Stack</h4>
+                    <ul>
+                        <li><strong>Backend:</strong> Pure Java (Core Java 17, `com.sun.net.httpserver.HttpServer`, Thread Pool Executor, Zero external Maven dependencies required).</li>
+                        <li><strong>REST API:</strong> Full JSON endpoints for Authentication, Movie Catalog, Showtimes, Seat Lock, Booking, and Cancellation.</li>
+                        <li><strong>Storage Engine:</strong> JSON Persistence Database (`data/database.json`) with synchronized thread-safe file I/O.</li>
+                        <li><strong>Frontend:</strong> Modern Responsive Single Page Application (HTML5, Modern CSS3 Flexbox/Grid, Vanilla JavaScript Fetch API).</li>
+                        <li><strong>Payment Simulation:</strong> Realistic Dummy Payment Gateway with UPI QR, Card validation, and Net Banking.</li>
+                    </ul>
+                </div>
+                <div class="info-section">
+                    <h4><i class="fa-solid fa-code"></i> Key Java Concepts Demonstrated for Viva</h4>
+                    <ul>
+                        <li><strong>Object-Oriented Programming (OOP):</strong> Encapsulation (User, Movie, Showtime, Booking models), Inheritance, Polymorphism.</li>
+                        <li><strong>Concurrency & Multithreading:</strong> Multi-threaded HTTP server handling simultaneous requests; `synchronized` seat reservation preventing double booking (race conditions).</li>
+                        <li><strong>Data Structures:</strong> `ConcurrentHashMap`, `LinkedHashSet` for ordered seat sets, `ArrayList`, `Comparator`.</li>
+                        <li><strong>File I/O & Serialization:</strong> Persistent JSON serialization & parsing without bulky third-party libraries.</li>
+                    </ul>
+                </div>
+                <div class="info-section">
+                    <h4><i class="fa-solid fa-users"></i> Project Credentials</h4>
+                    <p>Default Demo User: <code>demo@example.com</code> / <code>password123</code></p>
+                    <p>Database file saved at: <code>./data/database.json</code></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- FOOTER -->
+    <footer class="app-footer">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <span class="footer-logo"><i class="fa-solid fa-film"></i> CineShow</span>
+                <p>A BookMyShow Inspired College Micro-Project built with Java Web Backend.</p>
+            </div>
+            <div class="footer-copy">
+                &copy; 2026 CineShow Micro-Project | Computer Engineering Department
+            </div>
+        </div>
+    </footer>
+
+    <!-- App JavaScript -->
+    <script src="js/app.js"></script>
+</body>
+</html>
+
